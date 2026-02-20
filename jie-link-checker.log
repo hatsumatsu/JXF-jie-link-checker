@@ -1,0 +1,11 @@
+[2026-02-20 21:10:40 UTC]  Batch: 10 post(s)  [609, 610, 611, 650, 668, 723, 724, 725, 726, 727]
+  Post 609       SKIPPED             (no valid teaserUrl)
+  Post 610       403 OK              https://google.com
+  Post 611       SKIPPED             (no valid teaserUrl)
+  Post 650       403 OK              https://google.com
+  Post 668       SKIPPED             (no valid teaserUrl)
+  Post 723       SKIPPED             (no valid teaserUrl)
+  Post 724       403 OK              https://google.com
+  Post 725       200 OK              https://heise.de
+  Post 726       403 OK              https://google.com
+  Post 727       403 OK              https://google.com
