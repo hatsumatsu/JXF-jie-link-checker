@@ -93,6 +93,12 @@ final class JIE_Link_Checker {
 		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 		add_filter( 'cron_schedules', array( $this, 'register_cron_schedule' ) );
 		add_action( JIE_LINK_CHECKER_CRON_HOOK, array( $this, 'run' ) );
+
+		if ( is_admin() ) {
+			add_filter( 'manage_jie_posts_columns', array( $this, 'add_link_health_column' ) );
+			add_action( 'manage_jie_posts_custom_column', array( $this, 'render_link_health_column' ), 10, 2 );
+			add_action( 'admin_head', array( $this, 'column_styles' ) );
+		}
 	}
 
 	// -------------------------------------------------------------------------
@@ -372,6 +378,97 @@ final class JIE_Link_Checker {
 		}
 
 		file_put_contents( $log_file, $content, LOCK_EX );
+	}
+
+	// -------------------------------------------------------------------------
+	// Admin — list table column
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Adds the Link Health column to the jie post list table.
+	 *
+	 * @since 0.1.0
+	 * @param array<string, string> $columns Existing column definitions.
+	 * @return array<string, string>
+	 */
+	public function add_link_health_column( array $columns ): array {
+		$columns['link_health'] = __( 'Link Health', 'jie-link-checker' );
+		return $columns;
+	}
+
+	/**
+	 * Renders the Link Health column cell for a given post.
+	 *
+	 * @since 0.1.0
+	 * @param string $column_name Column identifier.
+	 * @param int    $post_id     Current post ID.
+	 * @return void
+	 */
+	public function render_link_health_column( string $column_name, int $post_id ): void {
+		if ( 'link_health' !== $column_name ) {
+			return;
+		}
+
+		$url = get_post_meta( $post_id, 'teaserUrl', true );
+
+		if ( empty( $url ) ) {
+			return;
+		}
+
+		$checked = get_post_meta( $post_id, 'jie-link-checker-checked', true );
+		$broken  = get_post_meta( $post_id, 'jie-link-checker-broken', true );
+
+		if ( ! $checked ) {
+			$icon  = 'dashicons-marker';
+			$mod   = 'unchecked';
+			$title = __( 'Not yet checked', 'jie-link-checker' );
+		} elseif ( '1' === $broken ) {
+			$icon  = 'dashicons-dismiss';
+			$mod   = 'broken';
+			$title = sprintf(
+				/* translators: %s: human-readable check date/time */
+				__( 'Broken — checked %s', 'jie-link-checker' ),
+				wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (int) $checked )
+			);
+		} else {
+			$icon  = 'dashicons-yes-alt';
+			$mod   = 'healthy';
+			$title = sprintf(
+				/* translators: %s: human-readable check date/time */
+				__( 'Healthy — checked %s', 'jie-link-checker' ),
+				wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (int) $checked )
+			);
+		}
+
+		printf(
+			'<span class="dashicons %s jie-link-health jie-link-health--%s" title="%s"></span>',
+			esc_attr( $icon ),
+			esc_attr( $mod ),
+			esc_attr( $title )
+		);
+	}
+
+	/**
+	 * Outputs inline column styles on the jie list table screen.
+	 *
+	 * @since 0.1.0
+	 * @return void
+	 */
+	public function column_styles(): void {
+		$screen = get_current_screen();
+
+		if ( ! $screen || 'edit-jie' !== $screen->id ) {
+			return;
+		}
+		?>
+		<style>
+			.column-link_health { width: 80px; text-align: center; }
+			.jie-link-health { font-size: 20px; width: 20px; height: 20px; }
+			.jie-link-health--unchecked { color: #999; }
+			.jie-link-health--healthy   { color: #00a32a; }
+			.jie-link-health--broken    { color: #d63638; }
+		</style>
+		<?php
 	}
 
 	// -------------------------------------------------------------------------
