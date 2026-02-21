@@ -4,10 +4,10 @@
 
 All constants can be overridden in `wp-config.php` using `define()`.
 
-| Constant | Default | Purpose |
-|---|---|---|
-| `JIE_LINK_CHECKER_CRON_INTERVAL` | `600` | Cron interval in seconds |
-| `JIE_LINK_CHECKER_BATCH_SIZE` | `10` | Posts checked per cron run |
+| Constant                         | Default | Purpose                    |
+| -------------------------------- | ------- | -------------------------- |
+| `JIE_LINK_CHECKER_CRON_INTERVAL` | `600`   | Cron interval in seconds   |
+| `JIE_LINK_CHECKER_BATCH_SIZE`    | `10`    | Posts checked per cron run |
 
 ## Cron setup
 
@@ -21,10 +21,10 @@ The cron hook `jie_link_checker_run` calls `JIE_Link_Checker::run()`.
 
 Each cron run selects up to `JIE_LINK_CHECKER_BATCH_SIZE` published `jie` posts in two passes:
 
-1. **Query A** — posts where `jie-link-checker-checked` meta does *not* exist,
+1. **Query A** — posts where `jie-link-checker-checked` meta does _not_ exist,
    ordered by `post_date ASC` (oldest unchecked first).
 2. **Query B** — if Query A returned fewer than `BATCH_SIZE` results, the
-   remainder is filled with posts that *do* have `jie-link-checker-checked`,
+   remainder is filled with posts that _do_ have `jie-link-checker-checked`,
    ordered by that value numerically ASC (checked longest ago first).
 
 Both queries use `fields => ids`, `no_found_rows => true`, and disabled cache
@@ -57,12 +57,12 @@ For each post:
 
 ## Meta keys
 
-| Key | Value | Written when |
-|---|---|---|
-| `teaserUrl` | URL string | ACF field — read-only |
-| `jie-link-checker-checked` | Unix timestamp (string) | Every check pass |
-| `jie-link-checker-broken` | `'1'` | HTTP 404 confirmed |
-| `jie-link-checker-broken` | *(deleted)* | Non-404 HTTP response |
+| Key                        | Value                   | Written when          |
+| -------------------------- | ----------------------- | --------------------- |
+| `teaserUrl`                | URL string              | ACF field — read-only |
+| `jie-link-checker-checked` | Unix timestamp (string) | Every check pass      |
+| `jie-link-checker-broken`  | `'1'`                   | HTTP 404 confirmed    |
+| `jie-link-checker-broken`  | _(deleted)_             | Non-404 HTTP response |
 
 ## Manual testing (WP-CLI)
 
